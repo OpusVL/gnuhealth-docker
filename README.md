@@ -23,11 +23,26 @@ The build process uses the slim version of the python Docker image. It adds in t
 
 By mounting the config file `trytond.conf` into the image we are able to set the necessary credentials for the service to access the `db` container.
 
-__TODO:__ look at parameterising/templating the config file to build it from the `.env` variables, or automate the editconf process.
+Create a file `.password` owned/accessible by uid 1000 that contains the password for the admin user, eg.
+
+```shell
+echo SecretKey > .password
+sudo chown 1000:1000 .password
+```
 
 The build process mimics the install [instructions](https://en.m.wikibooks.org/wiki/GNU_Health/Installation).
 
-__TODO:__ run the database initialisation from a script.
+Bring up the container set and watch the logs.
+
+```shell
+docker-compose up -d && docker-compose logs -f
+```
+
+Initialise the database and admin user using:
+
+```shell
+docker-compose exec gnuhealth bash -c /home/gnuhealth/init.sh
+```
 
 By default this listens on TCP port 8000 for web and 8080 for webdav, according to the config file. I have exposed both ports and these are able to be mapped to using the `$PORTBASE` variable - by default I've set the it to `80` which maps the ports to the same as the container (8000 and 8080). This can be easily changes to anything within the TCP port range by setting the portbase, eg.
 
@@ -42,3 +57,14 @@ Would result in the container being accessed via port 12300 and 12380 respective
 This is a PostgreSQL v12 instance using the official `postgres:12-alpine` container.
 
 The `init-db.sh` script creates the `gnuhealth` user/role sets the password and creates the `gnuhealth` database - owned by the new user.
+
+## Install the Client Locally
+
+Install and run the client.
+
+```shell
+pip3 install --user --upgrade gnuhealth-client
+gnuhealth-client
+```
+
+Connect using the server name and port you specified (eg. `server:12300`) with the user `admin` and the password you put in the `.password` file.

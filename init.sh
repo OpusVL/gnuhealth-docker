@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source .gnuhealthrc
+source ~/.gnuhealthrc
 
 sed --in-place 's/^uri/#&/' ${GNUHEALTH_DIR}/tryton/server/config/trytond.conf
 
