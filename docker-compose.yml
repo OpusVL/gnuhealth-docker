@@ -1,0 +1,33 @@
+version: '3.2'
+
+services:
+  gnuhealth:
+    build: build/gnuhealth
+    environment:
+      TRYTOND_DATABASE_URI: "postgresql://${GNUHEALTH_POSTGRES_USER:-gnuhealth}:${GNUHEALTH_POSTGRES_PASSWORD?REQUIRED}@db:5432"
+      TRYTONPASSFILE: /home/gnuhealth/.password
+      GNUHEALTH_ADMIN_EMAIL: ${GNUHEALTH_ADMIN_EMAIL?REQUIRED}
+    volumes:
+      # - "${PWD}/trytond.conf:/home/gnuhealth/gnuhealth/tryton/server/config/trytond.conf:rw"
+      - "${PWD}/.password:/home/gnuhealth/.password:ro"
+      - "${PWD}/init.sh:/home/gnuhealth/init.sh:ro"
+    ports:
+      - "${PORTBASE?REQUIRED}00:8000"
+      - "${PORTBASE?REQUIRED}80:8080"
+    depends_on:
+      - db
+
+  db:
+    image: ${POSTGRES_IMAGE:-postgres}:${POSTGRES_IMAGE_VERSION:-12-alpine}
+    environment:
+      POSTGRES_DB:  "${POSTGRES_DB:-postgres}"
+      POSTGRES_USER: "${POSTGRES_USER:-postgres}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD?REQUIRED}"
+      GNUHEALTH_DATABASE: ${GNUHEALTH_DATABASE:-gnuhealth}
+      GNUHEALTH_POSTGRES_USER: ${GNUHEALTH_POSTGRES_USER:-gnuhealth}
+      GNUHEALTH_POSTGRES_PASSWORD: ${GNUHEALTH_POSTGRES_PASSWORD?REQUIRED}
+    volumes:
+      - "${PWD}/init-db.sh:/docker-entrypoint-initdb.d/init-db.sh"
+      - "${CONTAINER_VOLUME?REQUIRED}/${SERIAL?REQUIRED}/postgres:/var/lib/postgresql/data"
+      - "${CONTAINER_VOLUME?REQUIRED}/${SERIAL?REQUIRED}/pg_socket:/var/run/postgresql"
+    restart: always

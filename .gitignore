@@ -1,0 +1,4 @@
+.env
+.password
+docker-compose.override.yml
+docker-compose.config.yml
