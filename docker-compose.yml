@@ -8,6 +8,7 @@ services:
       TRYTONPASSFILE: /home/gnuhealth/.password
       GNUHEALTH_ADMIN_EMAIL: ${GNUHEALTH_ADMIN_EMAIL?REQUIRED}
     volumes:
+      - "${PWD}/trytond.conf:/home/gnuhealth/gnuhealth/tryton/server/config/trytond.conf:rw"
       - "${PWD}/.password:/home/gnuhealth/.password:ro"
       - "${PWD}/init.sh:/home/gnuhealth/init.sh:ro"
       - "${CONTAINER_VOLUME?REQUIRED}/${SERIAL?REQUIRED}/gnuhealth/attach:/home/gnuhealth/attach:rw"
